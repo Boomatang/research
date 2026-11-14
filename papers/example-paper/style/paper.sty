@@ -1,0 +1,66 @@
+% paper.sty — shared styling for research papers.
+% Loaded from main.tex via \usepackage{style/paper}.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{paper}[2026/11/14 Common paper styling]
+
+% ------------------------------------------------------------------
+% Page layout
+% ------------------------------------------------------------------
+\RequirePackage[a4paper, margin=2.5cm, headheight=14pt]{geometry}
+
+% ------------------------------------------------------------------
+% Encoding and fonts
+% ------------------------------------------------------------------
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{lmodern}
+\RequirePackage{microtype}
+
+% ------------------------------------------------------------------
+% Mathematics
+% ------------------------------------------------------------------
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+
+% ------------------------------------------------------------------
+% Graphics and tables
+% ------------------------------------------------------------------
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\RequirePackage{booktabs}
+
+% ------------------------------------------------------------------
+% Captions and floats
+% ------------------------------------------------------------------
+\RequirePackage[labelfont=bf, font=small, skip=6pt]{caption}
+\RequirePackage{subcaption}
+
+% ------------------------------------------------------------------
+% Headings and hyperlinks (hyperref last, cleveref after hyperref)
+% ------------------------------------------------------------------
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\RequirePackage[colorlinks=true, linkcolor=blue!60!black,
+                citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+
+% cleveref must be loaded after hyperref.
+\RequirePackage[capitalise, nameinlink]{cleveref}
+
+% ------------------------------------------------------------------
+% Section title styling
+% ------------------------------------------------------------------
+\RequirePackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\large\bfseries}{\thesubsection}{1em}{}
+
+\endinput

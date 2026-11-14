@@ -1,0 +1,41 @@
+\section{Method}
+\label{sec:method}
+
+This section contains mathematics and a table, exercising equation numbering
+and the \texttt{booktabs} table style from \texttt{style/paper.sty}.
+
+\subsection{Problem Statement}
+
+Let $f \colon \mathbb{R}^n \to \mathbb{R}$ be the objective function. We seek
+\begin{equation}
+  \label{eq:objective}
+  x^\ast = \arg\min_{x \in \mathbb{R}^n} f(x).
+\end{equation}
+The gradient of the objective in \cref{eq:objective} is denoted
+$\nabla f(x)$, and the update rule is
+\begin{equation}
+  \label{eq:update}
+  x_{k+1} = x_k - \alpha_k \nabla f(x_k),
+\end{equation}
+where $\alpha_k > 0$ is the step size at iteration $k$.
+
+\subsection{Parameters}
+
+\Cref{tab:parameters} lists the parameters used by the method described by
+\cref{eq:update}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Parameters of the optimisation method.}
+  \label{tab:parameters}
+  \begin{tabular}{llrl}
+    \toprule
+    \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    Step size        & $\alpha$   & $0.01$ & --- \\
+    Iterations       & $K$        & $1000$ & --- \\
+    Tolerance        & $\varepsilon$ & $10^{-6}$ & --- \\
+    Dimensionality   & $n$        & $64$   & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}

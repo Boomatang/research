@@ -1,0 +1,28 @@
+\section{Introduction}
+\label{sec:introduction}
+
+This is the introduction of the test paper. Its purpose is to verify that
+\verb|\input| of secondary files works from the Zig build system, and that the
+table of contents picks up all sections across those files.
+
+The remainder of the paper is organised as follows:
+\cref{sec:method} describes the method,
+\cref{sec:results} presents the results, and
+\cref{sec:conclusion} concludes.
+
+\subsection{Motivation}
+\label{sec:motivation}
+
+Most research groups build their papers with Makefiles or shell scripts. Using
+Zig as the build system gives dependency tracking, caching, and a clean
+separation between sources and build artifacts.
+
+\subsection{Contributions}
+\label{sec:contributions}
+
+\begin{itemize}
+  \item A test paper exercising all features needed by real papers.
+  \item A Zig build graph that renders papers to PDF via \texttt{latexmk}.
+  \item Automatic discovery of papers: drop a folder under \texttt{papers/}
+        and a \texttt{zig build <name>} step appears.
+\end{itemize}

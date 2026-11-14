@@ -1,0 +1,36 @@
+\documentclass[11pt, a4paper]{article}
+
+% Styling lives in style/paper.sty
+\usepackage{style/paper}
+
+\title{A Test Paper for the Zig Build System}
+\author{Research Group}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	This paper exists to exercise the Zig-driven LaTeX build system. It imports a
+	style file, pulls in section files, and contains floating environments so that
+	the table of contents and list of figures require multiple render passes.
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+
+\input{sections/introduction}
+\input{sections/method}
+\input{sections/results}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper demonstrated the full feature set the build system must support:
+package imports, section imports, a table of contents, a list of figures,
+cross-references (see \cref{sec:method}), and floating environments. If this
+document renders, the multi-pass rendering performed by \texttt{latexmk} via
+\texttt{zig build example-paper} is working correctly.
+
+\end{document}
