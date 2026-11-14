@@ -1,0 +1,66 @@
+\section{What we can do}
+\label{sec:fix}
+
+The fixes outlined here would far better done at the start of the project, and not after the customer hits the issue.
+That said these fixes can still be applied to existing operators.
+
+\subsection{Audit the RBAC}
+This is the first step that should be done, and the audit is not about the permission, the resources being accessed.
+I am working with the assumption that the RBAC has only the CRUD permissions that is it requires.
+This audit is to classify the resources that the operator requires to function with.
+There are three classifications that all resources will fall into.
+
+\begin{itemize}
+	\item Native kebernetes resource.
+	\item Third party CRDs.
+	\item Operator native CRDs.
+\end{itemize}
+
+Once the resources have being classified a set of test can be defined to see the impact on the operator.
+There is a level of risk associated with the different types of resources.
+In the following sections that risk is outlined of the resource classification from above.
+
+\subsubsection{Native kebernetes resource}
+The native kebernetes resources are generic to every cluster, and this fact makes them the worst problem kind.
+Every other operator on the cluster most likely interacts with the native resources, meaning your operator needs the toughest cache here.
+These are resources kebernetes itself will create.
+
+\subsubsection{Third party CRDs}
+Third party CRDs are those defined by other operators that your operator may integrate with.
+An example here would the CRDs for the cluster gateway that is possible using the gateway API.\footnote{\url{https://kubernetes.io/docs/concepts/services-networking/gateway/}}
+These resources maybe used by other operators in the cluster, with the other operators defining their own CRs.
+This is a resource that is possible for your operator to be a \nn{} on, and there should be a strong level of cache filtering carried out.
+
+
+\subsubsection{Operator native CRDs}
+The operator native CRDs are the simplest of the three resource types.
+Most likely in the operator that defines the CRDs, the operator is going to want to act upon every instance of that resources.
+This would mean the operator native CRDs would have the most laxed caching restrictions, if any at all.
+
+
+\subsection{Label all resources}
+If the operator has any interaction with a resource, add a unique label to that resource related to the operator.
+I would raise a level of caution here.
+Depending on how the operator is installed different labels maybe applied during the different install methods.
+Having a common label across all the resources makes configuring the cache easier.
+
+One problem with adding labels, then filtering the cache on those labels.
+If someone removes the label from the resource, your operator does not get an event for that update to the resource.
+In the eyes of the operator the resources doesn't exist, but also it does not know it should recreate the resource.
+
+\subsection{Create test scripts}
+In one sense this problem is hard to automate tests for, but that does not mean the test can not be scripted.
+To test for the \nn{} all you need to do is add native kebernetes resources and third party resources to a namespace your operator should not care about.
+By watching the memory usage of your operator you can see if your operator is affected.
+Don't only add a few, add a lot.
+This will show the issue much faster.
+
+For example one of the operators I was working on had a watch on \textit{deployments}\footnote{\url{https://kubernetes.io/docs/concepts/workloads/controllers/deployment/}}.
+A simple script\footnote{\url{https://github.com/Boomatang/kuadrant-crc-setup/blob/main/create-deployments.fish}} that would create a deployment with the number of pod replica's at zero, and importantly a large annotations field (about 190kbs in size) would highlight the issue.
+When the script creates about 500 deployments, the operator's memory would jump by around 200MiB.
+That jump is really easy to see on a graph, and very repeatable.
+The repeatable allows validation of the caching configuration once implemented.
+
+A note on creating these scripts, and possible using them to create a large set of resources.
+While it will validate that your operator is not a \nn{}, it does not mean other operators in your cluster is not.
+It can be very possible to crash the entire cluster when proving your operator is not affected.

@@ -1,0 +1,42 @@
+
+\section{What is the \nn{}}
+\label{sec:what_is}
+
+While this concept may relate to other areas of computing, the scope will be narrowed down to kubernetes, and more so operators.
+Narrowing the scope down will allow explaining the concept in a  cleaner process as there is a number of moving parts that all plays a part.
+Firstly, we need a common understanding of what an operator is.
+
+\subsection{What is an Operator}
+
+An operator is an application that is deployed onto a cluster that will manage operands.
+In the management of the operands the operator will speak to the cluster via the API server.
+The API server will send events for resources on the cluster that operator has registered interest in.
+These resources can be the operators self defined CRDs, third party CRDs, or kubernetes native resources.
+
+When the operator receives events on these resources from the API server, the operator triggers a reconcile function that acts on the resource.
+
+An operator can run in two modes, cluster scoped and namespace scoped.
+The operator is far more powerfully when running in cluster scoped.
+In the past few years there has been a move to have all operator be cluster scoped.
+It is when the operator is running cluster scoped the problem of the \nn{} becomes easier to introduce.
+
+\subsection{Communication between an operator and the API server}
+The API server is the keeper of all information on the cluster, and an operator needs permission to speak with the API server.
+This permission system is managed by RBAC allowing CRUD operations on the cluster.
+So far there is nothing out of the normal about this setup.
+One thing to note here is the "R" in the CRUD allows \textit{read}, \textit{list}, and \textit{watch}.
+
+The \textit{watch} is a key part of the problem.
+
+\subsection{So now, what is the \nn{}}
+The \nn{} is an operator that knows too much about what is going on in the cluster.
+When the operator set up the watch for resources the API server will send the events for of those resources.
+Even if the operator only cares about a small sub set of the resources.
+
+The RBAC rules allow the operator to receive all the events, and the reconcile functions predicates ensure only the resources the operator cares about are acted upon.
+But without the cache filtering configuring of the controller-runtime, the operator will store all events in memory just in case it is needed later.
+It is this storing of events just in case the data is needed, is what makes the operator a \nn{}.
+
+
+
+

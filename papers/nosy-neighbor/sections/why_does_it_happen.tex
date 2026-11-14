@@ -1,0 +1,48 @@
+
+\section{Why does this happen}
+\label{sec:why}
+
+There are two main reason that I believe allows this to happen.
+Both of the reasons are not enough on their own, and I need to be carefully not to throw blame on toward anybody.
+
+\subsection{Developers and their development environment}
+The developer environment I believe is the main reason the \nn{} is not spotted until it is too late, and in the hands of our customers.
+I know from my own set-up, my team tries to resourcefully with resources, and enable development to be carried out on local clusters such as KinD.
+This allows us to build clean development environments cheaply.
+We do not reuse existing clusters.
+
+The \nn{} only happens when there is other third party resources on the cluster, such as customer workloads.
+As the development cluster are clean, or tidy the increased memory usage from the third party resource are not detected.
+
+Even our releas testing cluster tend to be created for that test cycle, and don't have the legacy resources a customers cluster would have.
+
+\subsection{controller-runtime, and it's defaults}
+The controller-runtime is the default package that most operators will use to communicate with the API server.
+It is very good at getting an operator bootstrapped, but has a number of shortcoming's that mislead the developers.
+
+The first behaviour that is misleading is what the predicate functions do for the reconcile functions in the reconcile loop.
+Or more so the assumption developers make about these predicate functions.
+Most of the developers I have asked about the behaviour all assumed that if an event failed to the predicate, the resources related to that event are not cached.
+While in truth the caching of the resources happens before the predicate function every triggered.
+
+The next behaviour that is unexpected is related to the watches the controller-runtime configures.
+When defining a reconcile function the developer will also define what resources will trigger that reconcile function.
+The predicate functions are also defined at this time.
+Speaking with other developers there is an understanding that the controller-runtime will configure watches on the defined resources of the reconcile function.
+It does, and this is acceptable behaviour.
+The behaviour that is not expected, and not known by most I spoke with.
+When the standard client configured thought the controller-runtime is used to get a resource from the cluster, the controller-runtime also sets up a watch on that resources.
+If if the resource is of a know name and namespace, the controller-runtime configures the watch.
+The controller-runtime can not know that the one requested is only ever accessed once.
+
+The last behaviour that I believe leads to operator being misconfigured is lack of requiring the user to configure the cache for the controller-runtime.
+Awareness of the cache configuration is missing by developers.
+If it is not already configured, the developers forget to configure it.
+The lack of forcing the configuration of the cache turns the cache configuration into a second class citizen.
+
+\phantomsection\label{sec:why:controller-runtime:startup}
+But the controller-runtime start up is the kicker that makes the "why the \nn{} is such a problem" (see \cref{sec:why:problem}) even more of a problem.
+On the operators start up, the controller-runtime waits for all the events for the resources that watches have being configured for before triggering any of the reconcile functions.
+This is a great behaviour as it allows the reconcile functions to act quickly by not needing to make network requests to the cluster.
+In the case of the \nn{} this means before the operator can do any work all state most be known.
+It is true the controller-runtime will do cache evictions when resource usage is high, but this only happens during runtime, not at startup.

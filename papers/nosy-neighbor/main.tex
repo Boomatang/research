@@ -1,0 +1,37 @@
+\documentclass[11pt, a4paper]{article}
+
+\newcommand{\nn}{\textbf{Nosy Neighbor}}
+
+% Styling lives in style/paper.sty
+\usepackage{style/paper}
+\usepackage{hyperref}
+
+\title{Nosy neighbors in kuberetes}
+\author{Jim Fitzpatrick}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	This paper exists to exercise the Zig-driven LaTeX build system. It imports a
+	style file, pulls in section files, and contains floating environments so that
+	the table of contents and list of figures require multiple render passes.
+\end{abstract}
+
+\tableofcontents
+% \listoffigures
+
+\input{sections/introduction}
+
+\input{sections/what_is}
+\input{sections/why_does_it_happen.tex}
+\input{sections/why_its_a_problem.tex}
+\input{sections/what_we_can_do}
+
+\input{sections/conclusion}
+\input{sections/reference}
+\input{sections/terms}
+
+\end{document}

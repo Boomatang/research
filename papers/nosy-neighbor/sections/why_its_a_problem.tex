@@ -1,0 +1,26 @@
+
+\section{Why the \nn{} is such a problem}
+\label{sec:why:problem}
+
+There are a number of reasons why this is a problem.
+We could use security as the main reason, but I am not a fan of that one.
+
+\subsection{Your customers find the issue first}
+The reason I think is the more important one is in the waste of resources that is caused.
+On a production cluster this normally shows its self as the operator pod being killed for an out of memory (OOM) issue.
+In turn the next normal ask comes that comes from the cluster is to raise the memory limits of the operator.
+This is a typical XY problem.\footnote{\url{https://en.wikipedia.org/wiki/XY_problem}: The XY problem is a communication problem encountered in help desk, technical support, software engineering, or customer service situations where the question is about an end user's attempted solution (X) rather than the root problem itself (Y).}
+
+The \hyperref[sec:why:controller-runtime:startup]{controller-runtime startup} makes the issue even worse, as during a product upgrade the operator most be restarted.
+If the operator had being running for some time, the number of new resources added to the cluster could have being handled by cache evictions.
+But the restart requires the operator to store all the resources in the memory for at least one reconcile loop.
+This causes the operator to crash, but even prevents the rolling back to the older version of the operator, as the problem is \textit{not} the operator logic.
+The problem is the caching behavouir that may have being there from the very first version of the operator.
+
+This being's to reflect badly on the engineering team, possible rightly so, and reduces the trust a customer has in the products being built.
+The worst part is the large, more important clusters the customer uses the operator the more likely the issue is to happen.
+
+\subsection{Harder to fix after the fact}
+In \cref{sec:fix} a number of fixes are talked about, and these all apply when the issue was found by the customer also.
+The problem is the fix become harder to apply as there would be a number of assumed logic applied throughout the operator making it harder to apply the fix.
+Being able to apply the fixes in completely may require a number of patch release, and at worse the customer to perform upgrade logic.
