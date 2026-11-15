@@ -1,0 +1,5 @@
+\begin{abstract}
+	This paper introduces the Nosy Neighbor, a Kubernetes anti-pattern where a cluster-scoped Operator watches and caches resources across all namespaces despite only needing a small subset.
+	Driven by clean development clusters and default controller-runtime caching behaviors, this issue often goes unnoticed until it causes production OOMKilled crashes.
+	To prevent and remediate the problem, this paper outlines practical steps for auditing RBAC resource classifications, filtering caches via resource labels, and running synthetic load tests to catch memory spikes early.
+\end{abstract}

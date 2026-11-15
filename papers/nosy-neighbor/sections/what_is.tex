@@ -9,7 +9,7 @@ Firstly, we need a common understanding of what an operator is.
 \subsection{What is an Operator}
 
 An operator is an application that is deployed onto a cluster\footnote{\url{https://kubernetes.io/docs/concepts/architecture/} \textbf{Cluster Architecture} A Kubernetes cluster consists of a control plane plus a set of worker machines, called nodes, that run containerized applications. Every cluster needs at least one worker node in order to run Pods.} that will manage operands\footnote{An operand is the application workload managed by a Kubernetes Operator—typically a complex stateful service (e.g., etcd, PostgreSQL) whose lifecycle is automated via custom controllers and Custom Resources (CRs).}.
-In the management of the operands the operator will speak to the cluster via the API server\footnote{\url{https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/} \textbf{kube-apiserver}, The Kubernetes API server validates and configures data for the api objects which include pods, services, replicationcontrollers, and others. The API Server services REST operations and provides the frontend to the cluster's shared state through which all other components interact.}.
+In the management of the operands the operator will communicate to the cluster via the API server\footnote{\url{https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/} \textbf{kube-apiserver}, The Kubernetes API server validates and configures data for the api objects which include pods, services, replicationcontrollers, and others. The API Server services REST operations and provides the frontend to the cluster's shared state through which all other components interact.}.
 The API server will send events for resources on the cluster that operator has registered interest in.
 These resources can be the operators self defined CRDs\footnote{\url{https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/} \textbf{Extend the Kubernetes API with CustomResourceDefinitions}}, third party CRDs, or kubernetes native resources.
 
@@ -37,8 +37,8 @@ When the operator set up the watch for resources the API server will send the ev
 Even if the operator only cares about a small sub set of the resources.
 
 The RBAC rules allow the operator to receive all the events, and the reconcile functions predicates\footnote{A predicate function evaluates a given input or resource state against a condition and returns a Boolean result (true or false), typically used to filter candidates or gate execution.} ensure only the resources the operator cares about are acted upon.
-But without the cache filtering configuring of the controller-runtime\footnote{\url{https://github.com/kubernetes-sigs/controller-runtime} \textbf{Kubernetes controller-runtime Project} The Kubernetes controller-runtime Project is a set of go libraries for building Controllers. It is leveraged by Kubebuilder and Operator SDK.}, the operator will store all events in memory just in case it is needed later.
-It is this storing of events just in case the data is needed, is what makes the operator a \nn{}.
+But without the cache filtering configuring of the controller-runtime\footnote{\url{https://github.com/kubernetes-sigs/controller-runtime} \textbf{Kubernetes controller-runtime Project} The Kubernetes controller-runtime Project is a set of go libraries for building Controllers. It is leveraged by Kubebuilder and Operator SDK.}, the operator will store all events in memory \textit{just in case} it is needed later.
+It is this storing of events \textit{just in case} is what makes the operator a \nn{}.
 
 
 
