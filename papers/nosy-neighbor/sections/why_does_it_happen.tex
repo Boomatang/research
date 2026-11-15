@@ -7,14 +7,15 @@ Both of the reasons are not enough on their own, and I need to be carefully not 
 
 \subsection{Developers and their development environment}
 The developer environment I believe is the main reason the \nn{} is not spotted until it is too late, and in the hands of our customers.
-I know from my own set-up, my team tries to resourcefully with resources, and enable development to be carried out on local clusters such as KinD.
+I know from my own set-up, my team tries to resourcefully with resources, and enable development to be carried out on local clusters such as KinD\footnote{\url{https://kind.sigs.k8s.io/} \textbf{KinD} kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI.}.
 This allows us to build clean development environments cheaply.
 We do not reuse existing clusters.
+This reduces the development costs as long-running clusters are not required.
 
 The \nn{} only happens when there is other third party resources on the cluster, such as customer workloads.
-As the development cluster are clean, or tidy the increased memory usage from the third party resource are not detected.
+As the development cluster are clean, or tidy, the increased memory usage from the third party resource are not detected.
 
-Even our releas testing cluster tend to be created for that test cycle, and don't have the legacy resources a customers cluster would have.
+Even our release testing cluster tend to be created for that test cycle, and don't have the legacy resources a customers cluster would have.
 
 \subsection{controller-runtime, and it's defaults}
 The controller-runtime is the default package that most operators will use to communicate with the API server.
@@ -22,7 +23,7 @@ It is very good at getting an operator bootstrapped, but has a number of shortco
 
 The first behaviour that is misleading is what the predicate functions do for the reconcile functions in the reconcile loop.
 Or more so the assumption developers make about these predicate functions.
-Most of the developers I have asked about the behaviour all assumed that if an event failed to the predicate, the resources related to that event are not cached.
+Most of the developers I have asked about the behaviour all assumed that if an event failed to pass the predicate function, the resources related to that event are not cached.
 While in truth the caching of the resources happens before the predicate function every triggered.
 
 The next behaviour that is unexpected is related to the watches the controller-runtime configures.
@@ -32,7 +33,7 @@ Speaking with other developers there is an understanding that the controller-run
 It does, and this is acceptable behaviour.
 The behaviour that is not expected, and not known by most I spoke with.
 When the standard client configured thought the controller-runtime is used to get a resource from the cluster, the controller-runtime also sets up a watch on that resources.
-If if the resource is of a know name and namespace, the controller-runtime configures the watch.
+Even if the resource is of a know name and namespace, the controller-runtime configures the watch.
 The controller-runtime can not know that the one requested is only ever accessed once.
 
 The last behaviour that I believe leads to operator being misconfigured is lack of requiring the user to configure the cache for the controller-runtime.

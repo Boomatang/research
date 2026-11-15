@@ -5,8 +5,8 @@ The fixes outlined here would far better done at the start of the project, and n
 That said these fixes can still be applied to existing operators.
 
 \subsection{Audit the RBAC}
-This is the first step that should be done, and the audit is not about the permission, the resources being accessed.
-I am working with the assumption that the RBAC has only the CRUD permissions that is it requires.
+This is the first step that should be done, and the audit is not about the permission, but for the resources being accessed.
+I am working with the assumption that the RBAC has only the CRUD permissions that is it requires, and not over privileged.
 This audit is to classify the resources that the operator requires to function with.
 There are three classifications that all resources will fall into.
 
@@ -27,8 +27,8 @@ These are resources kebernetes itself will create.
 
 \subsubsection{Third party CRDs}
 Third party CRDs are those defined by other operators that your operator may integrate with.
-An example here would the CRDs for the cluster gateway that is possible using the gateway API.\footnote{\url{https://kubernetes.io/docs/concepts/services-networking/gateway/}}
-These resources maybe used by other operators in the cluster, with the other operators defining their own CRs.
+An example here would the CRDs for the cluster gateway that is possible using the gateway API.\footnote{\url{https://kubernetes.io/docs/concepts/services-networking/gateway/} \textbf{Gateway API} Gateway API is a family of API kinds that provide dynamic infrastructure provisioning and advanced traffic routing.}
+These resources maybe used by other operators in the cluster, with the other operators defining their own CRs\footnote{A Custom Resource (CR) is a declarative Kubernetes API object, instantiated from a Custom Resource Definition (CRD), that specifies the desired configuration and state of an operator-managed operand.}.
 This is a resource that is possible for your operator to be a \nn{} on, and there should be a strong level of cache filtering carried out.
 
 
@@ -55,12 +55,12 @@ By watching the memory usage of your operator you can see if your operator is af
 Don't only add a few, add a lot.
 This will show the issue much faster.
 
-For example one of the operators I was working on had a watch on \textit{deployments}\footnote{\url{https://kubernetes.io/docs/concepts/workloads/controllers/deployment/}}.
+For example one of the operators I was working on had a watch on \textit{deployments}\footnote{\url{https://kubernetes.io/docs/concepts/workloads/controllers/deployment/} \textbf{Deployments} A Deployment manages a set of Pods to run an application workload, usually one that doesn't maintain state.}.
 A simple script\footnote{\url{https://github.com/Boomatang/kuadrant-crc-setup/blob/main/create-deployments.fish}} that would create a deployment with the number of pod replica's at zero, and importantly a large annotations field (about 190kbs in size) would highlight the issue.
 When the script creates about 500 deployments, the operator's memory would jump by around 200MiB.
 That jump is really easy to see on a graph, and very repeatable.
 The repeatable allows validation of the caching configuration once implemented.
 
 A note on creating these scripts, and possible using them to create a large set of resources.
-While it will validate that your operator is not a \nn{}, it does not mean other operators in your cluster is not.
+While it will validate that your operator is not a \nn{}, it does not mean other operators in your cluster are not.
 It can be very possible to crash the entire cluster when proving your operator is not affected.

@@ -2,39 +2,42 @@
 \section{What is the \nn{}}
 \label{sec:what_is}
 
-While this concept may relate to other areas of computing, the scope will be narrowed down to kubernetes, and more so operators.
+While this concept may relate to other areas of computing, the scope will be narrowed down to kubernetes, and more so operators\footnote{\url{https://kubernetes.io/docs/concepts/extend-kubernetes/operator/} \textbf{Operator pattern}, Operators are software extensions to Kubernetes that make use of custom resources to manage applications and their components. Operators follow Kubernetes principles, notably the control loop.}.
 Narrowing the scope down will allow explaining the concept in a  cleaner process as there is a number of moving parts that all plays a part.
 Firstly, we need a common understanding of what an operator is.
 
 \subsection{What is an Operator}
 
-An operator is an application that is deployed onto a cluster that will manage operands.
-In the management of the operands the operator will speak to the cluster via the API server.
+An operator is an application that is deployed onto a cluster\footnote{\url{https://kubernetes.io/docs/concepts/architecture/} \textbf{Cluster Architecture} A Kubernetes cluster consists of a control plane plus a set of worker machines, called nodes, that run containerized applications. Every cluster needs at least one worker node in order to run Pods.} that will manage operands\footnote{An operand is the application workload managed by a Kubernetes Operator—typically a complex stateful service (e.g., etcd, PostgreSQL) whose lifecycle is automated via custom controllers and Custom Resources (CRs).}.
+In the management of the operands the operator will speak to the cluster via the API server\footnote{\url{https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/} \textbf{kube-apiserver}, The Kubernetes API server validates and configures data for the api objects which include pods, services, replicationcontrollers, and others. The API Server services REST operations and provides the frontend to the cluster's shared state through which all other components interact.}.
 The API server will send events for resources on the cluster that operator has registered interest in.
-These resources can be the operators self defined CRDs, third party CRDs, or kubernetes native resources.
+These resources can be the operators self defined CRDs\footnote{\url{https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/} \textbf{Extend the Kubernetes API with CustomResourceDefinitions}}, third party CRDs, or kubernetes native resources.
 
 When the operator receives events on these resources from the API server, the operator triggers a reconcile function that acts on the resource.
 
-An operator can run in two modes, cluster scoped and namespace scoped.
+An operator normally runs in one of two modes,
+cluster scoped\footnote{\textbf{Cluster Scoped} The operators have permission to watch, and react to CRDs anywhere in on the cluster and just a given namespace.}
+and namespace scoped\footnote{\textbf{Namespace Scoped} The operators can only watch, and react in a single namespace.}.
 The operator is far more powerfully when running in cluster scoped.
-In the past few years there has been a move to have all operator be cluster scoped.
+In the past few years there has been a move to have all operator be cluster scoped.\footnote{\url{https://developers.redhat.com/blog/2020/06/26/migrating-a-namespace-scoped-operator-to-a-cluster-scoped-operator} \textbf{Migrating a namespace-scoped Operator to a cluster-scoped Operator}}
 It is when the operator is running cluster scoped the problem of the \nn{} becomes easier to introduce.
 
 \subsection{Communication between an operator and the API server}
 The API server is the keeper of all information on the cluster, and an operator needs permission to speak with the API server.
-This permission system is managed by RBAC allowing CRUD operations on the cluster.
+This permission system is managed by RBAC\footnote{\url{https://kubernetes.io/docs/reference/access-authn-authz/rbac/} \textbf{Using RBAC Authorization} Role-based access control (RBAC) is a method of regulating access to computer or network resources based on the roles of individual users within your organization.}
+allowing CRUD\footnote{\url{https://en.wikipedia.org/wiki/Create\%2C_read\%2C_update_and_delete} \textbf{Create, read, update and delete}}
+operations on the cluster.
 So far there is nothing out of the normal about this setup.
 One thing to note here is the "R" in the CRUD allows \textit{read}, \textit{list}, and \textit{watch}.
-
 The \textit{watch} is a key part of the problem.
 
 \subsection{So now, what is the \nn{}}
 The \nn{} is an operator that knows too much about what is going on in the cluster.
-When the operator set up the watch for resources the API server will send the events for of those resources.
+When the operator set up the watch for resources the API server will send the events for of those resources from all namespaces\footnote{\url{https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/} \textbf{Namespaces} In Kubernetes, namespaces provide a mechanism for isolating groups of resources within a single cluster. Names of resources need to be unique within a namespace, but not across namespaces. Namespace-based scoping is applicable only for namespaced objects (e.g. Deployments, Services, etc.) and not for cluster-wide objects (e.g. StorageClass, Nodes, PersistentVolumes, etc.).} on the cluster.
 Even if the operator only cares about a small sub set of the resources.
 
-The RBAC rules allow the operator to receive all the events, and the reconcile functions predicates ensure only the resources the operator cares about are acted upon.
-But without the cache filtering configuring of the controller-runtime, the operator will store all events in memory just in case it is needed later.
+The RBAC rules allow the operator to receive all the events, and the reconcile functions predicates\footnote{A predicate function evaluates a given input or resource state against a condition and returns a Boolean result (true or false), typically used to filter candidates or gate execution.} ensure only the resources the operator cares about are acted upon.
+But without the cache filtering configuring of the controller-runtime\footnote{\url{https://github.com/kubernetes-sigs/controller-runtime} \textbf{Kubernetes controller-runtime Project} The Kubernetes controller-runtime Project is a set of go libraries for building Controllers. It is leveraged by Kubebuilder and Operator SDK.}, the operator will store all events in memory just in case it is needed later.
 It is this storing of events just in case the data is needed, is what makes the operator a \nn{}.
 
 

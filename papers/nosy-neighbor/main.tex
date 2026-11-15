@@ -6,9 +6,9 @@
 \usepackage{style/paper}
 \usepackage{hyperref}
 
-\title{Nosy neighbors in kuberetes}
+\title{Nosy neighbors in kubernetes}
 \author{Jim Fitzpatrick}
-\date{\today}
+\IfFileExists{gitdate.tex}{\input{gitdate.tex}}{\date{\today}}
 
 \begin{document}
 
@@ -31,7 +31,9 @@
 \input{sections/what_we_can_do}
 
 \input{sections/conclusion}
-\input{sections/reference}
-\input{sections/terms}
+
+% Footnotes are collected here rather than at the page bottom
+\clearpage
+\theendnotes
 
 \end{document}
