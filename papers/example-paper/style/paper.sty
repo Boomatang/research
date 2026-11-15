@@ -44,15 +44,78 @@
 \RequirePackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\nouppercase{\leftmark}}
-\fancyhead[R]{\small\thepage}
+% Header shows the paper title. \maketitle clears \@title, so keep a
+% copy taken at \begin{document}. Line breaks in the title become spaces.
+\AtBeginDocument{\global\let\paper@title\@title}
+\fancyhead[L]{\small{\def\\{ }\paper@title}}
+% Main content shows "n of total"; the roman front matter shows just
+% the page number. \if@paper@roman is set by the front matter logic
+% below, but must be declared before fancyhdr reads the footer.
+\newif\if@paper@roman
+\fancyfoot[C]{\small\thepage\if@paper@roman\else\ of \pageref*{LastPage}\fi}
 \renewcommand{\headrulewidth}{0.4pt}
+
+\RequirePackage{lastpage}
 
 \RequirePackage[colorlinks=true, linkcolor=blue!60!black,
                 citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
 
 % cleveref must be loaded after hyperref.
 \RequirePackage[capitalise, nameinlink]{cleveref}
+
+\RequirePackage{etoolbox}
+
+% ------------------------------------------------------------------
+% Title page: vertically centred, no page number
+% ------------------------------------------------------------------
+% \@maketitle begins with \newpage, so the top fill must go after it
+% (a fill placed before \maketitle would end up alone on a blank page).
+% The fill after the abstract balances it; the TOC's leading \clearpage
+% then closes the title page.
+\patchcmd{\@maketitle}{\newpage}{\newpage\vspace*{\fill}}{}{%
+  \PackageWarning{paper}{Failed to patch \string\@maketitle}}
+\apptocmd{\endabstract}{\vspace*{\fill}}{}{%
+  \PackageWarning{paper}{Failed to patch \string\endabstract}}
+% The abstract is set as a quotation, which indents its first line.
+% Use the same list layout but with no first-line indent; any later
+% paragraphs still get the usual \listparindent.
+\patchcmd{\abstract}{\quotation}{%
+  \list{}{\listparindent 1.5em%
+          \itemindent    \z@
+          \rightmargin   \leftmargin
+          \parsep        \z@ \@plus\p@}%
+  \item\relax}{}{%
+  \PackageWarning{paper}{Failed to patch \string\abstract}}
+% \maketitle sets \thispagestyle{plain}; override it afterwards.
+\apptocmd{\maketitle}{\thispagestyle{empty}}{}{%
+  \PackageWarning{paper}{Failed to patch \string\maketitle}}
+
+% ------------------------------------------------------------------
+% Front matter: TOC and lists on their own pages, roman numbering;
+% main content restarts at arabic 1
+% ------------------------------------------------------------------
+% The flag is true between the end of the front matter lists and the
+% first main \section. The LOF clears it on entry because its own
+% heading is a \section* that must not trigger the switch.
+\newif\if@paper@front
+% \if@paper@roman (declared with the footer) is true while pages are
+% numbered in roman, i.e. from the TOC to the first main section.
+\pretocmd{\tableofcontents}{%
+  \clearpage\pagenumbering{roman}\global\@paper@romantrue}{}{%
+  \PackageWarning{paper}{Failed to patch \string\tableofcontents}}
+\apptocmd{\tableofcontents}{\clearpage\global\@paper@fronttrue}{}{%
+  \PackageWarning{paper}{Failed to patch \string\tableofcontents}}
+\pretocmd{\listoffigures}{\global\@paper@frontfalse}{}{%
+  \PackageWarning{paper}{Failed to patch \string\listoffigures}}
+\apptocmd{\listoffigures}{\clearpage\global\@paper@fronttrue}{}{%
+  \PackageWarning{paper}{Failed to patch \string\listoffigures}}
+\AddToHook{cmd/section/before}{%
+  \if@paper@front
+    \clearpage
+    \global\@paper@romanfalse
+    \pagenumbering{arabic}%
+    \global\@paper@frontfalse
+  \fi}
 
 % ------------------------------------------------------------------
 % Section title styling

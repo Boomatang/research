@@ -14,8 +14,10 @@ The remainder of the paper is organised as follows:
 \label{sec:motivation}
 
 Most research groups build their papers with Makefiles or shell scripts. Using
-Zig as the build system gives dependency tracking, caching, and a clean
-separation between sources and build artifacts.
+Zig as the build system\footnote{Zig is primarily a systems programming
+language, but its build system is general purpose and can drive arbitrary
+external tools such as \texttt{latexmk}.} gives dependency tracking, caching,
+and a clean separation between sources and build artifacts.
 
 \subsection{Contributions}
 \label{sec:contributions}
