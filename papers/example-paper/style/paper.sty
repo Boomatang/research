@@ -59,6 +59,9 @@
 
 \RequirePackage[colorlinks=true, linkcolor=blue!60!black,
 	citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+% Allow URLs to break at any character, preventing them from
+% overflowing the text block (especially in footnotes/endnotes).
+\RequirePackage{xurl}
 
 % cleveref must be loaded after hyperref.
 \RequirePackage[capitalise, nameinlink]{cleveref}
