@@ -39,3 +39,13 @@ where $\alpha_k > 0$ is the step size at iteration $k$.
     \bottomrule
   \end{tabular}
 \end{table}
+
+\subsubsection{Step Size Schedule}
+\label{sec:step-size}
+
+The step size $\alpha_k$ decays geometrically\footnote{A geometric
+schedule $\alpha_k = \alpha_0 \gamma^k$ with $\gamma \in (0, 1)$ is a
+common baseline; more elaborate schemes such as Barzilai--Borwein
+steps exist but are beyond the scope of this test paper.} rather than
+being kept constant, which balances convergence speed against
+oscillation near the optimum.

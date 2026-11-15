@@ -118,6 +118,105 @@
   \fi}
 
 % ------------------------------------------------------------------
+% Footnotes: collected into a "Notes" appendix at the end of the
+% document instead of the bottom of each page
+% ------------------------------------------------------------------
+\RequirePackage{endnotes}
+\renewcommand{\notesname}{Notes}
+% Each note in the appendix starts with where it came from: the
+% section it was footnoted in and the page the mark appears on.
+% The endnotes package writes note bodies to the .ent file as
+% unexpanded strings, so the origin has to be expanded here, at the
+% point of the footnote mark, before the text reaches \endnote.
+% \unexpanded keeps the note's own content untouched, and latexmk's
+% reruns keep the page numbers correct if pagination shifts. Notes
+% in the roman-numbered front matter are labelled as such.
+\let\paper@plainendnote\endnote
+% The appendix entry ends with the origin tag "(Section n, page m)",
+% hyperlinked back to the footnote mark it came from. The anchor
+% paper.note.<footnote number> is placed right after the mark by the
+% \footnote wrapper below. The anchor name and the origin text are
+% expanded here, at the point of the mark, for the same reason as
+% before: the endnotes package stores note bodies unexpanded.
+\renewcommand{\endnote}[1]{%
+  \begingroup
+    \edef\paper@temp{%
+      \endgroup
+      % \endnote also typesets an in-text superscript mark; suppress
+      % it locally so the sentence keeps only the real footnote mark.
+      \noexpand\begingroup
+      \noexpand\let\noexpand\@endnotemark\noexpand\relax
+      \noexpand\paper@plainendnote{%
+        \unexpanded{#1}\noexpand\space
+        \noexpand\hyperlink{paper.note.\number\c@footnote}{%
+          \noexpand\textnormal{(\paper@noteorigin)}}}%
+      \noexpand\endgroup}%
+  \paper@temp}
+% The page number comes from \pageref on the anchor's label rather
+% than the raw \c@page counter: a label records the page at shipout
+% time, so the number stays correct even when page breaking or a
+% float moves the footnote to a later page than where its paragraph
+% was first typeset. \noexpand keeps \pageref itself unexpanded in
+% the \edef above; it resolves against the .aux file when the
+% appendix is typeset (latexmk reruns until the value stabilises).
+% The starred form avoids a nested link inside the \hyperlink back
+% to the mark, and yields roman numerals in the front matter.
+\newcommand{\paper@noteorigin}{%
+  \if@paper@roman
+    front\space matter,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
+  \else
+    Section\space\paper@sectionref,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
+  \fi}
+% The deepest numbering level the footnote sits in, e.g. 1, 1.2 or
+% 1.2.3 (matching article-class \thesubsection style). Built from the
+% raw counters so it stays fully expandable inside the \edef above.
+\newcommand{\paper@sectionref}{%
+  \ifnum\number\c@subsubsection>0
+    \number\c@section.\number\c@subsection.\number\c@subsubsection
+  \else\ifnum\number\c@subsection>0
+    \number\c@section.\number\c@subsection
+  \else
+    \number\c@section
+  \fi\fi}
+% \footnote remains a normal page-bottom footnote; the same text is
+% also collected in the Notes appendix (with its origin), so each
+% note appears both on the page where it was made and in the
+% appendix. The footnote and endnote counters increment in lockstep,
+% so the appendix numbering matches the in-text footnote marks.
+\let\paper@realfootnote\footnote
+\renewcommand{\footnote}[1]{%
+  \paper@realfootnote{#1}%
+  % Anchor for the appendix's "(Section n, page m)" back-link. It
+  % goes after the real footnote call, so the footnote counter has
+  % already been stepped and the anchor lands beside its mark. The
+  % matching \label records the page at shipout time, so \pageref in
+  % the appendix reports the page the mark actually landed on.
+  \hypertarget{paper.note.\number\c@footnote}{}%
+  \label{paper.note.\number\c@footnote}%
+  \endnote{#1}}
+% The appendix heading is an unnumbered section (matching \section*
+% styling above) but should still show up in the table of contents.
+% \phantomsection gives hyperref a correct anchor for the TOC link.
+\renewcommand{\enoteheading}{%
+  \phantomsection
+  \section*{\notesname}%
+  \addcontentsline{toc}{section}{\notesname}%
+  \mbox{}\par\vskip-\baselineskip
+}
+
+% Extra vertical space between entries on the Notes page (roughly a
+% blank line at the notes' footnote size), so a long list of
+% footnotes stays readable. \enoteformat runs at the start of
+% every entry, after the \par that ended the previous entry, so the
+% skip lands between entries (the first simply sits a touch lower
+% under the heading). The plus-glue lets LaTeX absorb the skip at a
+% page break instead of creating an underfull page.
+\renewcommand{\enoteformat}{%
+  \vskip.9\baselineskip plus.3\baselineskip
+  \rightskip\z@ \leftskip\z@ \parindent=1.8em
+  \leavevmode\llap{\makeenmark}}
+
+% ------------------------------------------------------------------
 % Section title styling
 % ------------------------------------------------------------------
 \RequirePackage{titlesec}
