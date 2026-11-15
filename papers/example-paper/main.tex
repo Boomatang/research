@@ -5,7 +5,11 @@
 
 \title{A Test Paper for the Zig Build System}
 \author{Research Group}
-\date{\today}
+% The title-page date is derived from git by the build system (last commit
+% touching this paper, or today when there are uncommitted changes). When
+% gitdate.tex is absent (e.g. building directly with latexmk), fall back
+% to \today.
+\IfFileExists{gitdate.tex}{\input{gitdate.tex}}{\date{\today}}
 
 \begin{document}
 
