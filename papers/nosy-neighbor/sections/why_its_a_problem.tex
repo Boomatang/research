@@ -2,36 +2,37 @@
 \section{Why the \nn{} is such a problem}
 \label{sec:why:problem}
 
-There are a number of reasons why this is a problem.
-The reasons range from security, customer trust, and easy of remedy.
+There are numerous reasons why this is a problem.
+These reasons range from security, customer trust, and easy of remedy.
+Also, there is a likely other issues that are not highlighted here.
 
 \subsection{Adds security risks}
-I am not a security expect, and what I am about to say is my personal thoughts, and not proven to be true.
+I am not a security expert, and what I am about to say is my personal thoughts, and not proven to be true.
 The \nn{} can consume all secrets on the cluster if the caching is not configured correctly.
 This would mean that the operator has access to secrets from third parties.
 If an attacker's has access to the operator, they may be able to gain access to the secrets that have being cached.
 
-It is possible an actor with permission to create resources in a third party namespace can cause a DoS attack\footnote{\url{https://en.wikipedia.org/wiki/Denial-of-service_attack} \textbf{Denial-of-service attack} In computing, a denial-of-service attack is a cyberattack in which the perpetrator seeks to make a machine or network resource unavailable to its intended users by temporarily or indefinitely disrupting services of a host connected to a network.}
+An actor with permission to create resources in a third party namespace can cause a DoS attack\footnote{\url{https://en.wikipedia.org/wiki/Denial-of-service_attack} \textbf{Denial-of-service attack} In computing, a denial-of-service attack is a cyberattack in which the perpetrator seeks to make a machine or network resource unavailable to its intended users by temporarily or indefinitely disrupting services of a host connected to a network.}
 which can cause the operator that is a \nn{} to crash, and not preform the tasks it is programmed to do.
 The actor does not need to be a malicious actor to cause the DoS attack.
-Actor's can be creating resources for other services to consume.
+Actor's can be creating resources for other services to consume, and accidentally cause a DoS attack.
 
 \subsection{Your customers find the issue first}
-The reason I think is the more important one is in the waste of resources that is caused.
-On a production cluster this normally shows its self as the operator pod being killed for an out of memory (OOM\footnote{Out of Memory (OOM) refers to a state in which a process exhausts its allotted memory, causing the kernel to forcefully terminate it (reported in Kubernetes as OOMKilled).}) issue.
-In turn the next normal ask comes that comes from the cluster is to raise the memory limits of the operator.
+% The reason I think is the more important one is in the waste of resources that is caused.
+On a production cluster this normally shows its self as the operator being killed for an out of memory (OOMKilled\footnote{Out of Memory (OOMKilled) refers to a state in which a process exhausts its allotted memory, causing the kernel to forcefully terminate it (reported in Kubernetes as OOMKilled).}) issue.
+The next normal ask that comes from the customer of the cluster is to raise the memory limits of the operator.
 This is a typical XY problem.\footnote{\url{https://en.wikipedia.org/wiki/XY_problem}: The XY problem is a communication problem encountered in help desk, technical support, software engineering, or customer service situations where the question is about an end user's attempted solution (X) rather than the root problem itself (Y).}
 
-The \hyperref[sec:why:controller-runtime:startup]{controller-runtime startup} makes the issue even worse, as during a product upgrade the operator most be restarted.
-If the operator had being running for some time, the number of new resources added to the cluster could have being handled by cache evictions.
+The \hyperref[sec:why:controller-runtime:startup]{controller-runtime default startup} makes the issue even worse, as during a product upgrade the operator most be restarted.
+If the operator had being running for some time, the number of new resources added to the cluster could have being handled by cache evictions\footnote{I am getting conflicting information on how the cache evictions happen, possibly don't happen at all.}.
 But the restart requires the operator to store all the resources in the memory for at least one reconcile loop.
-This causes the operator to crash, but even prevents the rolling back to the older version of the operator, as the problem is \textit{not} the operator logic.
+This causes the operator to crash, but even prevents the rolling back to the older version of the operator, as the problem is \textit{not} in the new operator's logic, but the existing caching configuration.
 The problem is the caching behavouir that may have being there from the very first version of the operator.
 
 This being's to reflect badly on the engineering team, possible rightly so, and reduces the trust a customer has in the products being built.
-The worst part is the larger, more important clusters the customer uses the operator the more likely the issue is to happen.
+The worst part is the larger, more important clusters the customer uses the operator on, the more likely the issue is to happen.
 
 \subsection{Harder to fix after the fact}
 In \cref{sec:fix} a number of fixes are talked about, and these all apply when the issue was found by the customer also.
-The problem is the fix become harder to apply as there would be a number of assumed logic applied throughout the operator making it harder to apply the fix.
-Being able to apply the fixes in completely may require a number of patch release, and at worse the customer to perform upgrade logic.
+The problem is these fixes become harder to apply as there would be a number of assumed logic applied throughout the operator making it harder to apply the fix.
+Being able to apply all fixes completely may require a number of patch release, and at worse require the customer to perform manual upgrade steps.

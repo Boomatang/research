@@ -1,13 +1,13 @@
 \section{How to address the \nn{} problem}
 \label{sec:fix}
 
-The fixes outlined here would far better done at the start of the project, and not after the customer hits the issue.
+The fixes outlined here would far easier done at the start of the project, and not after the customer hits the issue.
 That said these fixes can still be applied to existing operators.
 
 \subsection{Audit the RBAC}
 This is the first step that should be done, and the audit is not about the permission, but for the resources being accessed.
-I am working with the assumption that the RBAC has only the CRUD permissions that is it requires, and not over privileged.
-This audit is to classify the resources that the operator requires to function with.
+I am working with the assumption that the RBAC has only the CRUD permissions that is it requires, and not overprivileged.
+This audit is to classify the resources that the operator requires to function.
 There are three classifications that all resources will fall into.
 
 \begin{itemize}
@@ -22,24 +22,25 @@ In the following sections that risk is outlined of the resource classification f
 
 \subsubsection{Native kebernetes resource}
 The native kebernetes resources are generic to every cluster, and this fact makes them the worst problem kind.
-Every other operator on the cluster most likely interacts with the native resources, meaning your operator needs the toughest cache here.
+Every other operator on the cluster most likely interacts with the native resources, meaning your operator needs the toughest cache filtering here.
 These are resources kebernetes itself will create.
+It is possible for \textit{everything} to create these resources.
 
 \subsubsection{Third party CRDs}
 Third party CRDs are those defined by other operators that your operator may integrate with.
-An example here would the CRDs for the cluster gateway that is possible using the gateway API.\footnote{\url{https://kubernetes.io/docs/concepts/services-networking/gateway/} \textbf{Gateway API} Gateway API is a family of API kinds that provide dynamic infrastructure provisioning and advanced traffic routing.}
+An example here would the CRDs for the cluster's gateway that is possible using the gateway API.\footnote{\url{https://kubernetes.io/docs/concepts/services-networking/gateway/} \textbf{Gateway API} Gateway API is a family of API kinds that provide dynamic infrastructure provisioning and advanced traffic routing.}
 These resources maybe used by other operators in the cluster, with the other operators defining their own CRs\footnote{A Custom Resource (CR) is a declarative Kubernetes API object, instantiated from a Custom Resource Definition (CRD), that specifies the desired configuration and state of an operator-managed operand.}.
-This is a resource that is possible for your operator to be a \nn{} on, and there should be a strong level of cache filtering carried out.
+This is a resource that is possible for your operator to be a \nn{} on, and there should be a strong level of cache filtering carried out here, but the third party CRDs are not as risky as the native kebernetes resources.
 
 
 \subsubsection{Operator native CRDs}
 The operator native CRDs are the simplest of the three resource types.
 Most likely in the operator that defines the CRDs, the operator is going to want to act upon every instance of that resources.
-This would mean the operator native CRDs would have the most laxed caching restrictions, if any at all.
+This would mean the operator native CRDs would have the least caching filtering, if any at all.
 
 
 \subsection{Label all resources}
-If the operator has any interaction with a resource, add a unique label to that resource related to the operator.
+If the operator has any interaction with a resource, add a unique label\footnote{\url{https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/} \textbf{Labels and Selectors} Labels are key/value pairs that are attached to objects such as Pods} to that resource related to the operator.
 I would raise a level of caution here.
 Depending on how the operator is installed different labels maybe applied during the different install methods.
 Having a common label across all the resources makes configuring the cache easier.
@@ -61,6 +62,6 @@ When the script creates about 500 deployments, the operator's memory would jump 
 That jump is really easy to see on a graph, and very repeatable.
 The repeatable allows validation of the caching configuration once implemented.
 
-A note on creating these scripts, and possible using them to create a large set of resources.
-While it will validate that your operator is not a \nn{}, it does not mean other operators in your cluster are not.
+A word of warning on creating these scripts, and possibly using them to create a large set of resources.
+While it will validate that your operator is not a \nn{}, it doesn't mean other operators in your cluster are not.
 It can be very possible to crash the entire cluster when proving your operator is not affected.
