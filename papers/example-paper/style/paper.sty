@@ -50,7 +50,7 @@
 \fancyhead[L]{\small{\def\\{ }\paper@title}}
 % Main content shows "n of total"; the roman front matter shows just
 % the page number. \if@paper@roman is set by the front matter logic
-% below, but must be declared before fancyhdr reads the footer.
+% below, but must be declared before fancyhdr reads the footer. 
 \newif\if@paper@roman
 \fancyfoot[C]{\small\thepage\if@paper@roman\else\ of \pageref*{LastPage}\fi}
 \renewcommand{\headrulewidth}{0.4pt}
@@ -58,7 +58,7 @@
 \RequirePackage{lastpage}
 
 \RequirePackage[colorlinks=true, linkcolor=blue!60!black,
-                citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+	citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
 
 % cleveref must be loaded after hyperref.
 \RequirePackage[capitalise, nameinlink]{cleveref}
@@ -73,22 +73,22 @@
 % The fill after the abstract balances it; the TOC's leading \clearpage
 % then closes the title page.
 \patchcmd{\@maketitle}{\newpage}{\newpage\vspace*{\fill}}{}{%
-  \PackageWarning{paper}{Failed to patch \string\@maketitle}}
+	\PackageWarning{paper}{Failed to patch \string\@maketitle}}
 \apptocmd{\endabstract}{\vspace*{\fill}}{}{%
-  \PackageWarning{paper}{Failed to patch \string\endabstract}}
+	\PackageWarning{paper}{Failed to patch \string\endabstract}}
 % The abstract is set as a quotation, which indents its first line.
 % Use the same list layout but with no first-line indent; any later
 % paragraphs still get the usual \listparindent.
 \patchcmd{\abstract}{\quotation}{%
-  \list{}{\listparindent 1.5em%
-          \itemindent    \z@
-          \rightmargin   \leftmargin
-          \parsep        \z@ \@plus\p@}%
-  \item\relax}{}{%
-  \PackageWarning{paper}{Failed to patch \string\abstract}}
+	\list{}{\listparindent 1.5em%
+		\itemindent    \z@
+		\rightmargin   \leftmargin
+		\parsep        \z@ \@plus\p@}%
+	\item\relax}{}{%
+	\PackageWarning{paper}{Failed to patch \string\abstract}}
 % \maketitle sets \thispagestyle{plain}; override it afterwards.
 \apptocmd{\maketitle}{\thispagestyle{empty}}{}{%
-  \PackageWarning{paper}{Failed to patch \string\maketitle}}
+	\PackageWarning{paper}{Failed to patch \string\maketitle}}
 
 % ------------------------------------------------------------------
 % Front matter: TOC and lists on their own pages, roman numbering;
@@ -101,21 +101,21 @@
 % \if@paper@roman (declared with the footer) is true while pages are
 % numbered in roman, i.e. from the TOC to the first main section.
 \pretocmd{\tableofcontents}{%
-  \clearpage\pagenumbering{roman}\global\@paper@romantrue}{}{%
-  \PackageWarning{paper}{Failed to patch \string\tableofcontents}}
+	\clearpage\pagenumbering{roman}\global\@paper@romantrue}{}{%
+	\PackageWarning{paper}{Failed to patch \string\tableofcontents}}
 \apptocmd{\tableofcontents}{\clearpage\global\@paper@fronttrue}{}{%
-  \PackageWarning{paper}{Failed to patch \string\tableofcontents}}
+	\PackageWarning{paper}{Failed to patch \string\tableofcontents}}
 \pretocmd{\listoffigures}{\global\@paper@frontfalse}{}{%
-  \PackageWarning{paper}{Failed to patch \string\listoffigures}}
+	\PackageWarning{paper}{Failed to patch \string\listoffigures}}
 \apptocmd{\listoffigures}{\clearpage\global\@paper@fronttrue}{}{%
-  \PackageWarning{paper}{Failed to patch \string\listoffigures}}
+	\PackageWarning{paper}{Failed to patch \string\listoffigures}}
 \AddToHook{cmd/section/before}{%
-  \if@paper@front
-    \clearpage
-    \global\@paper@romanfalse
-    \pagenumbering{arabic}%
-    \global\@paper@frontfalse
-  \fi}
+	\if@paper@front
+		\clearpage
+		\global\@paper@romanfalse
+		\pagenumbering{arabic}%
+		\global\@paper@frontfalse
+	\fi}
 
 % ------------------------------------------------------------------
 % Footnotes: collected into a "Notes" appendix at the end of the
@@ -139,19 +139,19 @@
 % expanded here, at the point of the mark, for the same reason as
 % before: the endnotes package stores note bodies unexpanded.
 \renewcommand{\endnote}[1]{%
-  \begingroup
-    \edef\paper@temp{%
-      \endgroup
-      % \endnote also typesets an in-text superscript mark; suppress
-      % it locally so the sentence keeps only the real footnote mark.
-      \noexpand\begingroup
-      \noexpand\let\noexpand\@endnotemark\noexpand\relax
-      \noexpand\paper@plainendnote{%
-        \unexpanded{#1}\noexpand\space
-        \noexpand\hyperlink{paper.note.\number\c@footnote}{%
-          \noexpand\textnormal{(\paper@noteorigin)}}}%
-      \noexpand\endgroup}%
-  \paper@temp}
+	\begingroup
+	\edef\paper@temp{%
+		\endgroup
+		% \endnote also typesets an in-text superscript mark; suppress
+		% it locally so the sentence keeps only the real footnote mark.
+		\noexpand\begingroup
+		\noexpand\let\noexpand\@endnotemark\noexpand\relax
+		\noexpand\paper@plainendnote{%
+			\unexpanded{#1}\noexpand\space
+			\noexpand\hyperlink{paper.note.\number\c@footnote}{%
+				\noexpand\textnormal{(\paper@noteorigin)}}}%
+		\noexpand\endgroup}%
+	\paper@temp}
 % The page number comes from \pageref on the anchor's label rather
 % than the raw \c@page counter: a label records the page at shipout
 % time, so the number stays correct even when page breaking or a
@@ -162,22 +162,22 @@
 % The starred form avoids a nested link inside the \hyperlink back
 % to the mark, and yields roman numerals in the front matter.
 \newcommand{\paper@noteorigin}{%
-  \if@paper@roman
-    front\space matter,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
-  \else
-    Section\space\paper@sectionref,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
-  \fi}
+	\if@paper@roman
+		front\space matter,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
+	\else
+		Section\space\paper@sectionref,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
+	\fi}
 % The deepest numbering level the footnote sits in, e.g. 1, 1.2 or
 % 1.2.3 (matching article-class \thesubsection style). Built from the
 % raw counters so it stays fully expandable inside the \edef above.
 \newcommand{\paper@sectionref}{%
-  \ifnum\number\c@subsubsection>0
-    \number\c@section.\number\c@subsection.\number\c@subsubsection
-  \else\ifnum\number\c@subsection>0
-    \number\c@section.\number\c@subsection
-  \else
-    \number\c@section
-  \fi\fi}
+	\ifnum\number\c@subsubsection>0
+		\number\c@section.\number\c@subsection.\number\c@subsubsection
+	\else\ifnum\number\c@subsection>0
+			\number\c@section.\number\c@subsection
+		\else
+			\number\c@section
+		\fi\fi}
 % \footnote remains a normal page-bottom footnote; the same text is
 % also collected in the Notes appendix (with its origin), so each
 % note appears both on the page where it was made and in the
@@ -185,23 +185,23 @@
 % so the appendix numbering matches the in-text footnote marks.
 \let\paper@realfootnote\footnote
 \renewcommand{\footnote}[1]{%
-  \paper@realfootnote{#1}%
-  % Anchor for the appendix's "(Section n, page m)" back-link. It
-  % goes after the real footnote call, so the footnote counter has
-  % already been stepped and the anchor lands beside its mark. The
-  % matching \label records the page at shipout time, so \pageref in
-  % the appendix reports the page the mark actually landed on.
-  \hypertarget{paper.note.\number\c@footnote}{}%
-  \label{paper.note.\number\c@footnote}%
-  \endnote{#1}}
+	\paper@realfootnote{#1}%
+	% Anchor for the appendix's "(Section n, page m)" back-link. It
+	% goes after the real footnote call, so the footnote counter has
+	% already been stepped and the anchor lands beside its mark. The
+	% matching \label records the page at shipout time, so \pageref in
+	% the appendix reports the page the mark actually landed on.
+	\hypertarget{paper.note.\number\c@footnote}{}%
+	\label{paper.note.\number\c@footnote}%
+	\endnote{#1}}
 % The appendix heading is an unnumbered section (matching \section*
 % styling above) but should still show up in the table of contents.
 % \phantomsection gives hyperref a correct anchor for the TOC link.
 \renewcommand{\enoteheading}{%
-  \phantomsection
-  \section*{\notesname}%
-  \addcontentsline{toc}{section}{\notesname}%
-  \mbox{}\par\vskip-\baselineskip
+	\phantomsection
+	\section*{\notesname}%
+	\addcontentsline{toc}{section}{\notesname}%
+	\mbox{}\par\vskip-\baselineskip
 }
 
 % Extra vertical space between entries on the Notes page (roughly a
@@ -212,17 +212,17 @@
 % under the heading). The plus-glue lets LaTeX absorb the skip at a
 % page break instead of creating an underfull page.
 \renewcommand{\enoteformat}{%
-  \vskip.9\baselineskip plus.3\baselineskip
-  \rightskip\z@ \leftskip\z@ \parindent=1.8em
-  \leavevmode\llap{\makeenmark}}
+	\vskip.9\baselineskip plus.3\baselineskip
+	\rightskip\z@ \leftskip\z@ \parindent=1.8em
+	\leavevmode\llap{\makeenmark}}
 
 % ------------------------------------------------------------------
 % Section title styling
 % ------------------------------------------------------------------
 \RequirePackage{titlesec}
 \titleformat{\section}
-  {\Large\bfseries}{\thesection}{1em}{}
+{\Large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}
-  {\large\bfseries}{\thesubsection}{1em}{}
+{\large\bfseries}{\thesubsection}{1em}{}
 
 \endinput
