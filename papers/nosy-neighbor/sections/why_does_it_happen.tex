@@ -8,7 +8,7 @@ Not one item under the areas is enough to causes the \nn{}, but together they bo
 
 \subsection{Developers and their development environment}
 The developer environment I believe is one of the main reason the \nn{} is not spotted until it is too late, when our operators are in the hands of our customers.
-I know from my own set-up, my team tries to be resourcefully with resources, and enable development to be carried out on local clusters such as KinD\footnote{\url{https://kind.sigs.k8s.io/} \textbf{KinD} kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI.}.
+I know from my own set-up, my team tries to be resourcefully with resources, and enable development to be carried out on local clusters such as KinD\cite{noauthor_kind_nodate}.
 This allows us to build clean development environments quickly, and cheaply.
 We do not reuse existing clusters.
 This reduces the development costs as long-running clusters, and the needed maintenance is not required.
@@ -19,7 +19,7 @@ As the development cluster are constantly recreated the increased memory usage f
 Even our release testing cluster tend to be freshly created for that test cycle, and don't have the legacy resources a customers cluster would have.
 
 \subsection{controller-runtime, and it's defaults}
-The controller-runtime is the default package that most operators written in golang\footnote{\url{https://go.dev} \textbf{golang} Build simple, secure, scalable systems with Go} will use to communicate with the API server.
+The controller-runtime is the default package that most operators written in golang\cite{noauthor_go_nodate} will use to communicate with the API server.
 It is very good at getting an operator bootstrapped, but has a number of default shortcoming's that are misleading developers.
 
 The first behaviour that is misleading is what the predicate functions do for the reconcile functions in the reconcile loop.

@@ -2,7 +2,7 @@
 \label{sec:introduction}
 In this paper a new concept will be introduced.
 This concept will be called the \nn{}.
-The \nn{} is related to the \textbf{Noisy Neighbor} concept.\footnote{\url{https://learn.microsoft.com/en-us/azure/architecture/antipatterns/noisy-neighbor/noisy-neighbor} \textbf{Noisy Neighbor antipattern} Multi tenant systems share resources between two or more tenants. Because tenants use the same shared resources, the activity of one tenant can negatively affect another tenant's use of the system.}
+The \nn{} is related to the \textbf{Noisy Neighbor} concept.\cite{claytonsiemens77_noisy_nodate}
 Though out this paper the structure that causes the \nn{} issue will be outlined, and some approaches that can be used to reduce the risk of the issue.
 
 \subsection{Motivation}
@@ -12,7 +12,7 @@ When people become aware of the issue there is a common understanding.
 However, we don't have a good term that can be used as a reference within conversations.
 This paper is hoping to introduce \nn{} the common term to our shared lexicon.
 
-Back at the end of March 2026 I got a blog post\footnote{\url{https://developers.redhat.com/articles/2026/03/31/unlocking-efficiency-guide-operator-cache-configuration-red-hat-openshift-and} \textbf{Unlocking efficiency: A guide to operator cache configuration on Red Hat OpenShift and Kubernetes} Understanding and tuning caching behavior of controller-runtime for efficient memory usage} added to \href{https://developers.redhat.com}{developers.redhat.com} which talks about this issue, but I never had a term to describe the issue.
+Back at the end of March 2026 I got a blog post\cite{fitzpatrick_unlocking_2026} added to \href{https://developers.redhat.com}{developers.redhat.com} which talks about this issue, but I never had a term to describe the issue.
 What I found over the following months talking with other developer there was no common name for the issue.
 I hope our shared lexicon can expand to allow us to avoid explain the problem space every time, and focus more on the resolving the \nn{} problem within our products.
 

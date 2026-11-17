@@ -12,8 +12,7 @@ The \nn{} can consume all secrets on the cluster if the caching is not configure
 This would mean that the operator has access to secrets from third parties.
 If an attacker's has access to the operator, they may be able to gain access to the secrets that have being cached.
 
-An actor with permission to create resources in a third party namespace can cause a DoS attack\footnote{\url{https://en.wikipedia.org/wiki/Denial-of-service_attack} \textbf{Denial-of-service attack} In computing, a denial-of-service attack is a cyberattack in which the perpetrator seeks to make a machine or network resource unavailable to its intended users by temporarily or indefinitely disrupting services of a host connected to a network.}
-which can cause the operator that is a \nn{} to crash, and not preform the tasks it is programmed to do.
+An actor with permission to create resources in a third party namespace can cause a DoS attack\cite{noauthor_denial--service_2026} which can cause the operator that is a \nn{} to crash, and not preform the tasks it is programmed to do.
 The actor does not need to be a malicious actor to cause the DoS attack.
 Actor's can be creating resources for other services to consume, and accidentally cause a DoS attack.
 
@@ -21,7 +20,7 @@ Actor's can be creating resources for other services to consume, and accidentall
 % The reason I think is the more important one is in the waste of resources that is caused.
 On a production cluster this normally shows its self as the operator being killed for an out of memory (OOMKilled\footnote{Out of Memory (OOMKilled) refers to a state in which a process exhausts its allotted memory, causing the kernel to forcefully terminate it (reported in Kubernetes as OOMKilled).}) issue.
 The next normal ask that comes from the customer of the cluster is to raise the memory limits of the operator.
-This is a typical XY problem.\footnote{\url{https://en.wikipedia.org/wiki/XY_problem}: The XY problem is a communication problem encountered in help desk, technical support, software engineering, or customer service situations where the question is about an end user's attempted solution (X) rather than the root problem itself (Y).}
+This is a typical XY problem.\cite{noauthor_xy_2026}
 
 The \hyperref[sec:why:controller-runtime:startup]{controller-runtime default startup} makes the issue even worse, as during a product upgrade the operator most be restarted.
 If the operator had being running for some time, the number of new resources added to the cluster could have being handled by cache evictions\footnote{I am getting conflicting information on how the cache evictions happen, possibly don't happen at all.}.

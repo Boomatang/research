@@ -1,9 +1,12 @@
 \documentclass[11pt, a4paper]{article}
 
+
 \newcommand{\nn}{\textbf{Nosy Neighbor}}
 
 % Styling lives in style/paper.sty
 \usepackage{style/paper}
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{Nosy Neighbor.bib}
 
 \title{Nosy neighbors in kubernetes}
 \author{Jim Fitzpatrick}
@@ -28,6 +31,9 @@
 
 % Footnotes are collected here rather than at the page bottom
 \clearpage
+
+\appendix
 \theendnotes
+\printbibliography
 
 \end{document}
