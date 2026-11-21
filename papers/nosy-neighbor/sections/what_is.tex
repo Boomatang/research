@@ -1,0 +1,44 @@
+
+\section{What is the \nn{}}
+\label{sec:what_is}
+
+While this concept may relate to other areas of computing, the scope will be narrowed down to kubernetes\cite{noauthor_production-grade_nodate}, and more so operators\cite{noauthor_operator_nodate}.
+Narrowing the scope down will allow explaining the concept in a  cleaner process as there is a number of moving parts that all plays a part.
+Firstly, we need a common, simplified understanding of what an operator is.
+
+\subsection{What is an Operator}
+
+An operator is an application that is deployed onto a cluster\cite{noauthor_cluster_nodate} that will manage operands\footnote{An \textbf{operand} is the application workload managed by a Kubernetes Operator—typically a complex stateful service (e.g., etcd, PostgreSQL) whose lifecycle is automated via custom controllers and Custom Resources (CRs).}.
+In the management of the operands the operator will communicate to the cluster via the API server\cite{noauthor_kube-apiserver_nodate}.
+The API server will send events for resources on the cluster that operator has registered interest in.
+Events include a copy of the resources, along with kind of event that happened.
+These resources can be the operators self defined CRDs\cite{noauthor_extend_nodate}, third party CRDs, or kubernetes native resources.
+
+When the operator receives events on these resources from the API server, the operator triggers a reconcile function that acts on the resource. The reconcile functions are defined pre resources, and make up the reconcile loop which is the main control loop of the operator.
+
+An operator normally runs in one of two modes,
+cluster scoped\footnote{\textbf{Cluster Scoped} The operators have permission to watch, and react to CRDs anywhere in on the cluster and just a given namespace.}, and namespace scoped\footnote{\textbf{Namespace Scoped} The operators can only watch, and react in a single namespace.}.
+The operator is far more powerfully when running in cluster scoped, and in the past few years there has been a move to have all operator be cluster scoped.\cite{koserwal_migrating_2020}
+It is when the operator is running cluster scoped the problem of the \nn{} becomes easier to introduce.
+
+\subsection{Communication between an operator and the API server}
+The API server is the gatekeeper of all information on the cluster, and an operator needs permission to speak with the API server.
+This permission system is managed by RBAC\cite{noauthor_using_nodate}
+allowing CRUD\cite{noauthor_create_2026} operations on the cluster.
+One thing to note here is the "R" in the CRUD allows \textit{read}, \textit{list}, and \textit{watch}.
+The \textit{watch} is a key part of the problem that leads to the \nn{}.
+
+\subsection{So now, what is the \nn{}}
+The \nn{} is an operator that knows too much about what is going on in the cluster.
+When the operator sets up the watches for resources the API server will send the events for of those resources from all namespaces\cite{noauthor_namespaces_nodate} on the cluster.
+Even if the operator only cares about a small sub set of the resources.
+
+The RBAC rules allow the operator to receive all the events, and the reconcile functions predicates\footnote{A \textbf{predicate} function evaluates a given input or resource state against a condition and returns a Boolean result (true or false), typically used to filter candidates or gate execution.} ensure only the resources the operator cares about are acted upon.
+But without the cache filtering configuring of the controller-runtime\cite{noauthor_kubernetes-sigscontroller-runtime_2026}, the operator will store all events in memory \textit{just in case} it is needed later.
+It is this storing of events \textit{just in case} is what makes the operator a \nn{}.
+The operator has access to information that is \textbf{not} required for the operator to perform it's required actions.
+This results in the operator having a high memory usage during runtime on the cluster.
+
+
+
+

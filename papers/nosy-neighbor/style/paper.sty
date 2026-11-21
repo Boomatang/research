@@ -1,0 +1,229 @@
+% paper.sty — shared styling for research papers.
+% Loaded from main.tex via \usepackage{style/paper}.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{paper}[2026/11/14 Common paper styling]
+
+% ------------------------------------------------------------------
+% Page layout
+% ------------------------------------------------------------------
+\RequirePackage[a4paper, margin=2.5cm, headheight=14pt]{geometry}
+
+% ------------------------------------------------------------------
+% Encoding and fonts
+% ------------------------------------------------------------------
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{lmodern}
+\RequirePackage{microtype}
+
+% ------------------------------------------------------------------
+% Mathematics
+% ------------------------------------------------------------------
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+
+% ------------------------------------------------------------------
+% Graphics and tables
+% ------------------------------------------------------------------
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\RequirePackage{booktabs}
+
+% ------------------------------------------------------------------
+% Captions and floats
+% ------------------------------------------------------------------
+\RequirePackage[labelfont=bf, font=small, skip=6pt]{caption}
+\RequirePackage{subcaption}
+
+% ------------------------------------------------------------------
+% Headings and hyperlinks (hyperref last, cleveref after hyperref)
+% ------------------------------------------------------------------
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+% Header shows the paper title. \maketitle clears \@title, so keep a
+% copy taken at \begin{document}. Line breaks in the title become spaces.
+\AtBeginDocument{\global\let\paper@title\@title}
+\fancyhead[L]{\small{\def\\{ }\paper@title}}
+% Main content shows "n of total"; the roman front matter shows just
+% the page number. \if@paper@roman is set by the front matter logic
+% below, but must be declared before fancyhdr reads the footer.
+\newif\if@paper@roman
+\fancyfoot[C]{\small\thepage\if@paper@roman\else\ of \pageref*{LastPage}\fi}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\RequirePackage{lastpage}
+
+\RequirePackage[colorlinks=true, linkcolor=blue!60!black,
+                citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+% Allow URLs to break at any character, preventing them from
+% overflowing the text block (especially in footnotes/endnotes).
+\RequirePackage{xurl}
+
+% cleveref must be loaded after hyperref.
+\RequirePackage[capitalise, nameinlink]{cleveref}
+
+\RequirePackage{etoolbox}
+
+% ------------------------------------------------------------------
+% Title page: vertically centred, no page number
+% ------------------------------------------------------------------
+% \@maketitle begins with \newpage, so the top fill must go after it
+% (a fill placed before \maketitle would end up alone on a blank page).
+% The fill after the abstract balances it; the TOC's leading \clearpage
+% then closes the title page.
+\patchcmd{\@maketitle}{\newpage}{\newpage\vspace*{\fill}}{}{%
+  \PackageWarning{paper}{Failed to patch \string\@maketitle}}
+\apptocmd{\endabstract}{\vspace*{\fill}}{}{%
+  \PackageWarning{paper}{Failed to patch \string\endabstract}}
+% The abstract is set as a quotation, which indents its first line.
+% Use the same list layout but with no first-line indent; any later
+% paragraphs still get the usual \listparindent.
+\patchcmd{\abstract}{\quotation}{%
+  \list{}{\listparindent 1.5em%
+          \itemindent    \z@
+          \rightmargin   \leftmargin
+          \parsep        \z@ \@plus\p@}%
+  \item\relax}{}{%
+  \PackageWarning{paper}{Failed to patch \string\abstract}}
+% \maketitle sets \thispagestyle{plain}; override it afterwards.
+\apptocmd{\maketitle}{\thispagestyle{empty}}{}{%
+  \PackageWarning{paper}{Failed to patch \string\maketitle}}
+
+% ------------------------------------------------------------------
+% Front matter: TOC and lists on their own pages, roman numbering;
+% main content restarts at arabic 1
+% ------------------------------------------------------------------
+% The flag is true between the end of the front matter lists and the
+% first main \section. The LOF clears it on entry because its own
+% heading is a \section* that must not trigger the switch.
+\newif\if@paper@front
+% \if@paper@roman (declared with the footer) is true while pages are
+% numbered in roman, i.e. from the TOC to the first main section.
+\pretocmd{\tableofcontents}{%
+  \clearpage\pagenumbering{roman}\global\@paper@romantrue}{}{%
+  \PackageWarning{paper}{Failed to patch \string\tableofcontents}}
+\apptocmd{\tableofcontents}{\clearpage\global\@paper@fronttrue}{}{%
+  \PackageWarning{paper}{Failed to patch \string\tableofcontents}}
+\pretocmd{\listoffigures}{\global\@paper@frontfalse}{}{%
+  \PackageWarning{paper}{Failed to patch \string\listoffigures}}
+\apptocmd{\listoffigures}{\clearpage\global\@paper@fronttrue}{}{%
+  \PackageWarning{paper}{Failed to patch \string\listoffigures}}
+\AddToHook{cmd/section/before}{%
+  \if@paper@front
+    \clearpage
+    \global\@paper@romanfalse
+    \pagenumbering{arabic}%
+    \global\@paper@frontfalse
+  \fi}
+
+% ------------------------------------------------------------------
+% Footnotes: collected into a "Notes" appendix at the end of the
+% document instead of the bottom of each page
+% ------------------------------------------------------------------
+\RequirePackage{endnotes}
+\renewcommand{\notesname}{Notes}
+% Each note in the appendix starts with where it came from: the
+% section it was footnoted in and the page the mark appears on.
+% The endnotes package writes note bodies to the .ent file as
+% unexpanded strings, so the origin has to be expanded here, at the
+% point of the footnote mark, before the text reaches \endnote.
+% \unexpanded keeps the note's own content untouched, and latexmk's
+% reruns keep the page numbers correct if pagination shifts. Notes
+% in the roman-numbered front matter are labelled as such.
+\let\paper@plainendnote\endnote
+% The appendix entry ends with the origin tag "(Section n, page m)",
+% hyperlinked back to the footnote mark it came from. The anchor
+% paper.note.<footnote number> is placed right after the mark by the
+% \footnote wrapper below. The anchor name and the origin text are
+% expanded here, at the point of the mark, for the same reason as
+% before: the endnotes package stores note bodies unexpanded.
+\renewcommand{\endnote}[1]{%
+  \begingroup
+    \edef\paper@temp{%
+      \endgroup
+      % \endnote also typesets an in-text superscript mark; suppress
+      % it locally so the sentence keeps only the real footnote mark.
+      \noexpand\begingroup
+      \noexpand\let\noexpand\@endnotemark\noexpand\relax
+      \noexpand\paper@plainendnote{%
+        \unexpanded{#1}\noexpand\space
+        \noexpand\hyperlink{paper.note.\number\c@footnote}{%
+          \noexpand\textnormal{(\paper@noteorigin)}}}%
+      \noexpand\endgroup}%
+  \paper@temp}
+% The page number comes from \pageref on the anchor's label rather
+% than the raw \c@page counter: a label records the page at shipout
+% time, so the number stays correct even when page breaking or a
+% float moves the footnote to a later page than where its paragraph
+% was first typeset. \noexpand keeps \pageref itself unexpanded in
+% the \edef above; it resolves against the .aux file when the
+% appendix is typeset (latexmk reruns until the value stabilises).
+% The starred form avoids a nested link inside the \hyperlink back
+% to the mark, and yields roman numerals in the front matter.
+\newcommand{\paper@noteorigin}{%
+  \if@paper@roman
+    front\space matter,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
+  \else
+    Section\space\paper@sectionref,\space page\space\noexpand\pageref*{paper.note.\number\c@footnote}%
+  \fi}
+% The deepest numbering level the footnote sits in, e.g. 1, 1.2 or
+% 1.2.3 (matching article-class \thesubsection style). Built from the
+% raw counters so it stays fully expandable inside the \edef above.
+\newcommand{\paper@sectionref}{%
+  \ifnum\number\c@subsubsection>0
+    \number\c@section.\number\c@subsection.\number\c@subsubsection
+  \else\ifnum\number\c@subsection>0
+    \number\c@section.\number\c@subsection
+  \else
+    \number\c@section
+  \fi\fi}
+% \footnote remains a normal page-bottom footnote; the same text is
+% also collected in the Notes appendix (with its origin), so each
+% note appears both on the page where it was made and in the
+% appendix. The footnote and endnote counters increment in lockstep,
+% so the appendix numbering matches the in-text footnote marks.
+\let\paper@realfootnote\footnote
+\renewcommand{\footnote}[1]{%
+  \paper@realfootnote{#1}%
+  % Anchor for the appendix's "(Section n, page m)" back-link. It
+  % goes after the real footnote call, so the footnote counter has
+  % already been stepped and the anchor lands beside its mark. The
+  % matching \label records the page at shipout time, so \pageref in
+  % the appendix reports the page the mark actually landed on.
+  \hypertarget{paper.note.\number\c@footnote}{}%
+  \label{paper.note.\number\c@footnote}%
+  \endnote{#1}}
+% The notes live in the appendix: \appendix is issued in main.tex
+% before \theendnotes, so a numbered \section here renders as
+% "A Notes" and picks up its own TOC entry automatically.
+\renewcommand{\enoteheading}{%
+  \section{\notesname}%
+  \mbox{}\par\vskip-\baselineskip
+}
+
+% Extra vertical space between entries on the Notes page (roughly a
+% blank line at the notes' footnote size), so a long list of
+% footnotes stays readable. \enoteformat runs at the start of
+% every entry, after the \par that ended the previous entry, so the
+% skip lands between entries (the first simply sits a touch lower
+% under the heading). The plus-glue lets LaTeX absorb the skip at a
+% page break instead of creating an underfull page.
+\renewcommand{\enoteformat}{%
+  \vskip.9\baselineskip plus.3\baselineskip
+  \rightskip\z@ \leftskip\z@ \parindent=1.8em
+  \leavevmode\llap{\makeenmark}}
+
+% ------------------------------------------------------------------
+% Section title styling
+% ------------------------------------------------------------------
+\RequirePackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\large\bfseries}{\thesubsection}{1em}{}
+
+\endinput

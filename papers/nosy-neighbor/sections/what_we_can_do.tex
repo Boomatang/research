@@ -1,0 +1,84 @@
+\section{How to address the \nn{} problem}
+\label{sec:fix}
+
+The fixes outlined here would far easier done at the start of the project, and not after the customer hits the issue.
+That said these fixes can still be applied to existing operators.
+
+\subsection{Audit the RBAC}
+\label{sec:fix:audit}
+This is the first step that should be done, and the audit is not about the permission, but for the resources being accessed.
+I am working with the assumption that the RBAC has only the CRUD permissions that is it requires, and not overprivileged.
+This audit is to classify the resources that the operator requires to function.
+There are three classifications that all resources will fall into.
+
+\begin{itemize}
+	\item Native kebernetes resource.
+	\item Third party CRDs.
+	\item Operator native CRDs.
+\end{itemize}
+
+Once the resources have being classified a set of test can be defined to see the impact on the operator.
+There is a level of risk associated with the different types of resources.
+In the following sections that risk is outlined of the resource classification from above.
+
+\subsubsection{Native kebernetes resource}
+The native kebernetes resources are generic to every cluster, and this fact makes them the worst problem kind.
+Every other operator on the cluster most likely interacts with the native resources, meaning your operator needs the toughest cache filtering here.
+These are resources kebernetes itself will create.
+It is possible for \textit{everything} on the cluster to create these resources.
+
+\subsubsection{Third party CRDs}
+Third party CRDs are those defined by other operators that your operator may integrate with.
+An example here would the CRDs for the cluster's gateway that is possible using the gateway API\cite{noauthor_gateway_nodate}.
+These resources maybe used by other operators in the cluster, with the other operators defining their own CRs\footnote{A Custom Resource (CR) is a declarative Kubernetes API object, instantiated from a Custom Resource Definition (CRD), that specifies the desired configuration and state of an operator-managed operand.}.
+This is a resource that is possible for your operator to be a \nn{} on, and there should be a strong level of cache filtering carried out here, but the third party CRDs are not as risky as the native kebernetes resources.
+
+
+\subsubsection{Operator native CRDs}
+The operator native CRDs are the simplest of the three resource types.
+Most likely in the operator that defines the CRDs, the operator is going to want to act upon every instance of that resources.
+This would mean the operator native CRDs would have the least caching filtering, if any at all.
+
+
+\subsection{Label all resources}
+\label{sec:fix:label}
+If the operator has any interaction with a resource, add a unique label\cite{noauthor_labels_nodate} to that resource related to the operator.
+I would raise a level of caution here.
+Depending on how the operator is installed different labels maybe applied during the different install methods.
+Having a common label across all the resources makes configuring the cache easier.
+
+One problem with adding labels, then filtering the cache on those labels.
+If someone removes the label from the resource, your operator does not get an event for that update to the resource.
+In the eyes of the operator the resources doesn't exist, but also it does not know it should recreate the resource.
+
+\subsection{Create test scripts}
+In one sense this problem is hard to automate tests for, but that does not mean the test can not be scripted.
+To test for the \nn{} all you need to do is add native kebernetes resources and third party resources to a namespace your operator should not care about.
+By watching the memory usage of your operator you can see if your operator is affected.
+Don't only add a few, add a lot.
+This will show the issue much faster.
+
+For example one of the operators I was working on had a watch on \textit{deployments}\cite{noauthor_deployments_nodate}.
+A simple script\cite{noauthor_kuadrant-crc-setupcreate-deploymentsfish_nodate}  that would create a deployment with the number of pod replica's at zero, and importantly a large annotations field (about 190kbs in size) would highlight the issue.
+When the script creates about 500 deployments, the operator's memory would jump by around 200MiB.
+That jump is really easy to see on a graph, and very repeatable.
+The repeatable allows validation of the caching configuration once implemented.
+
+A word of warning on creating these scripts, and possibly using them to create a large set of resources.
+While it will validate that your operator is not a \nn{}, it doesn't mean other operators in your cluster are not.
+It can be very possible to crash the entire cluster when proving your operator is not affected.
+
+\subsection{Configure the controller-runtime cache}
+Once the resources that have being found during the audit section (\cref{sec:fix:audit}) the controller-runtime cache should be configured to limit what resources are cached.
+This should make use of the labels defined in \cref{sec:fix:label}.
+
+A second configuration that is useful to configure is limiting the client that controller-runtime creates to only get resources with existing watches configured using \textit{ReaderFailOnMissingInformer}\cite{noauthor_cache_nodate}.
+This will stop developers accidentally from setting up watches for resources that maybe only accessed in the one of cases.
+
+\subsection{Review Again and Again}
+Overtime as the operator is build to do more complex work, the chance of new APIs added to the RBAC is likely.
+The review of the RBAC, and controller-runtime cache configuration needs to be done on every update.
+With the RBAC rules needing update to allow new APIs this can be used as an indicator of when a review is required.
+Workflows could be configured to trigger on the RBAC rules to be changed.
+At the time of writing inc I have not seen examples of such a workflow, or a successful review process.
+

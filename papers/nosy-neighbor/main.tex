@@ -1,0 +1,41 @@
+\documentclass[11pt, a4paper]{article}
+
+
+\newcommand{\nn}{\textbf{Nosy Neighbor}}
+
+% Styling lives in style/paper.sty
+\usepackage{style/paper}
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{Nosy Neighbor.bib}
+
+\title{Nosy neighbors in kubernetes}
+\author{Jim Fitzpatrick}
+\IfFileExists{gitdate.tex}{\input{gitdate.tex}}{\date{\today}}
+
+\begin{document}
+
+\maketitle
+\input{abstract.tex}
+
+\tableofcontents
+% \listoffigures
+
+\input{sections/introduction}
+
+\input{sections/what_is}
+\input{sections/why_does_it_happen.tex}
+\input{sections/why_its_a_problem.tex}
+\input{sections/what_we_can_do}
+
+\input{sections/conclusion}
+
+% Footnotes are collected here rather than at the page bottom
+\clearpage
+
+\appendix
+% Notes and References render as numbered appendix sections
+% (A Notes, B References).
+\theendnotes
+\printbibliography[heading=bibnumbered]
+
+\end{document}
