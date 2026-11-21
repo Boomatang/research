@@ -197,13 +197,11 @@
 	\hypertarget{paper.note.\number\c@footnote}{}%
 	\label{paper.note.\number\c@footnote}%
 	\endnote{#1}}
-% The appendix heading is an unnumbered section (matching \section*
-% styling above) but should still show up in the table of contents.
-% \phantomsection gives hyperref a correct anchor for the TOC link.
+% The notes live in the appendix: \appendix is issued in main.tex
+% before \theendnotes, so a numbered \section here renders as
+% "A Notes" and picks up its own TOC entry automatically.
 \renewcommand{\enoteheading}{%
-	\phantomsection
-	\section*{\notesname}%
-	\addcontentsline{toc}{section}{\notesname}%
+	\section{\notesname}%
 	\mbox{}\par\vskip-\baselineskip
 }
 
