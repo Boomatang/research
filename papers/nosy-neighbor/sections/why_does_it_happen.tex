@@ -13,6 +13,10 @@ This allows us to build clean development environments quickly, and cheaply.
 We do not reuse existing clusters.
 This reduces the development costs as long-running clusters, and the needed maintenance is not required.
 
+To extend the local development issue more.
+When doing active development the operators run locally on the developers machine and not in a container\cite{noauthor_containers_nodate} in the cluster.
+This means the locally running operator would be limited by the memory limits of the developers machine, which would hide high memory usages.
+
 The \nn{} only happens when there is other third party resources on the cluster, such as customer workloads.
 Even then, a numerous number of the third party resources is required.
 As the development cluster are constantly recreated the increased memory usage from the third party resource are never detected.
@@ -25,7 +29,7 @@ It is very good at getting an operator bootstrapped, but has a number of default
 The first behaviour that is misleading is what the predicate functions do for the reconcile functions in the reconcile loop.
 Or more so the assumption developers make about these predicate functions.
 Most of the developers I have asked about the behaviour all assumed that if an event failed to pass the predicate function, the resources related to that event are not cached.
-While in truth the caching of the resources happens before the predicate function is ever triggered.
+While in truth the caching of the resources happens while before the predicate function is ever triggered.
 
 The next behaviour that is unexpected is related to the watches the controller-runtime configures.
 When defining a reconcile function the developer will also define what resources will trigger that reconcile function.
@@ -46,3 +50,4 @@ But the controller-runtime default start up behaviour is the kicker that makes t
 On the operators start up, the controller-runtime waits for all the events for the resources that watches have being configured for before triggering any of the reconcile functions.
 This is a great behaviour as it allows the reconcile functions to act quickly by not needing to make network requests to the cluster.
 In the case of the \nn{} this means before the operator can do any work all state most be known.
+Even if this state is not required by the operator to do any work.
